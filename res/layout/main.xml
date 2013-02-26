@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+
+
+    <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/onlinelist"
+            android:id="@+id/include"></include>
+
+
+
+    <Button android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/btn_call_all"
+            android:text="@string/txt_call_all"
+            android:background="@drawable/btn_call_bg"
+            android:layout_gravity="center"></Button>
+
+
+    <Button android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:id="@+id/btn_call_all"
+            android:text="@string/txt_call_all"
+            android:background="#444"
+            android:layout_gravity="center"></Button>
+
+
+
+
+</LinearLayout>
