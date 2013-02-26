@@ -69,10 +69,6 @@ public class Main extends Activity implements OnClickListener{
         @Override
         public void run() {
             super.run();    //To change body of overridden methods use File | Settings | File Templates.
-            fun();
-            for(int i =0 ;i<10;i++){
-                System.out.println(i);
-            }
             send();
         }
 
@@ -123,31 +119,71 @@ public class Main extends Activity implements OnClickListener{
 
         public void send(){
 
-            String ip = "224.0.0.1";
+            int TIMEOUT = 1000;
+            byte[] data = "client string test".getBytes();
             int port = 8899;
-            int TTLTime = 4;
+            String servera = "192.168.0.101";
+
 
             try{
-                InetAddress mCastAddr = InetAddress.getByName(ip);
-                 if(!mCastAddr.isMulticastAddress()){
-                    throw new Exception("please use multicast ip");
+                // 1. 构造UDP DatagramSocket对象
+                DatagramSocket client = new DatagramSocket();
+
+                // 2。指定timeout时间，防止进入无限等待状态
+                client.setSoTimeout(TIMEOUT);
+
+                // 3. 构造收发的报文对象
+                InetAddress ineta = InetAddress.getByName(servera);
+                DatagramPacket sPacket = new DatagramPacket(data,data.length,ineta,port);
+
+                byte[] buf = new byte[100];
+                DatagramPacket rPacket = new DatagramPacket(buf,buf.length);
+
+                // 4.指定尝试的次数
+                int MAXTRIES = 5;
+                int tries = 0;
+                boolean hasResponse = false;
+
+                do {
+                    try{
+                        client.send(sPacket);
+
+                        try{
+                            client.receive(rPacket);
+
+                            System.out.println(tries + " Client Receive: "+new String(buf,0,rPacket.getLength()));
+
+                            if(!rPacket.getAddress().equals(servera)){
+                                throw new IOException("Received packet from an unknown source");
+                            };
+
+                            hasResponse = true;
+
+                        }catch(IOException ioException){
+                            System.out.println("Timed out, " + (MAXTRIES - tries) + "");
+                            tries += 1;
+                        }
+                    }catch(IOException io){
+                        System.out.println("Fail to Send.");
+                    }
+
+                }while((!hasResponse)&&(tries<MAXTRIES));
+
+
+                if(hasResponse){
+                    System.out.println("Receive: "+rPacket.getData());
+                }else{
+                    System.out.println("No Response, Give up");
                 }
+                client.close();
 
-                MulticastSocket sSocket = new MulticastSocket();
-                sSocket.setTimeToLive(TTLTime);
+            }catch(SocketException e){
 
-                byte[] sData = "ClientData".getBytes();
-                DatagramPacket sPacket = new DatagramPacket(sData,sData.length,mCastAddr,port);
-                sSocket.send(sPacket);
-                sSocket.close();
+            }catch(UnknownHostException unknownHostException){
 
-
-
-            }catch(UnknownHostException unknownhostE){
-                System.out.println("error3");
-            }catch(Exception e){
-                System.out.println("error4");
             }
+
+
 
         }
 
